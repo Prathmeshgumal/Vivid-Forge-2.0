@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# DesignForge
 
-## Project info
+DesignForge is a Vite, React, TypeScript, Tailwind CSS, and shadcn-ui design workspace. The current app includes a top project bar, central design canvas, asset library sidebar, and AI prompt bar shell.
 
-**URL**: https://lovable.dev/projects/54076a90-74f8-4b6e-92f1-069b07598725
+## Codebase Map
 
-## How can I edit this code?
+- `src/main.tsx` mounts the React app.
+- `src/App.tsx` wires React Query, toast providers, tooltips, and routes.
+- `src/pages/Index.tsx` composes the main workspace.
+- `src/components/TopNavigation.tsx` renders project actions and user/collaboration controls.
+- `src/components/DesignCanvas.tsx` renders the editor canvas and toolbar state.
+- `src/components/AssetLibrary.tsx` renders mock asset tabs and search UI.
+- `src/components/AIPromptBar.tsx` renders the prompt input and simulated generation state.
+- `src/components/ui/*` contains shadcn-ui/Radix primitives.
+- `src/integrations/supabase/client.ts` creates the Supabase browser client.
+- `src/index.css` and `tailwind.config.ts` define the design system.
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 18 or newer.
+- npm 9 or newer.
+- A Supabase project if you want persistence, auth, storage, or edge functions.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/54076a90-74f8-4b6e-92f1-069b07598725) and start prompting.
+## Local Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Install dependencies:
 
-**Use your preferred IDE**
+   ```sh
+   npm install
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. Create local environment variables:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+   ```sh
+   cp .env.example .env.local
+   ```
 
-Follow these steps:
+3. Fill in `.env.local`:
+
+   ```sh
+   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+
+4. Start the dev server:
+
+   ```sh
+   npm run dev
+   ```
+
+5. Open the app at:
+
+   ```text
+   http://localhost:8080
+   ```
+
+## Supabase Setup
+
+This repo now includes the official Supabase JavaScript client dependency:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install @supabase/supabase-js
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Create a Supabase project from the Supabase dashboard, then copy these values from Project Settings > API:
 
-# Step 3: Install the necessary dependencies.
-npm i
+- Project URL -> `VITE_SUPABASE_URL`
+- Publishable anon key -> `VITE_SUPABASE_ANON_KEY`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+The browser client is exported from:
+
+```ts
+import { supabase } from "@/integrations/supabase/client";
+```
+
+Use the anon key only in frontend code. Never put the service role key in `.env.local` for this Vite app because Vite exposes `VITE_*` variables to the browser bundle.
+
+The current UI does not yet read or write Supabase data. When persistence is added, create explicit tables and row-level security policies for projects, assets, collaborators, and generated outputs before calling Supabase from UI components.
+
+## Available Scripts
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Runs Vite on port `8080`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run build
+```
 
-**Use GitHub Codespaces**
+Creates a production build in `dist`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+npm run build:dev
+```
 
-## What technologies are used for this project?
+Creates a development-mode build.
 
-This project is built with:
+```sh
+npm run lint
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Runs ESLint across the repo.
 
-## How can I deploy this project?
+```sh
+npm run preview
+```
 
-Simply open [Lovable](https://lovable.dev/projects/54076a90-74f8-4b6e-92f1-069b07598725) and click on Share -> Publish.
+Serves the production build locally.
 
-## Can I connect a custom domain to my Lovable project?
+## Production Build
 
-Yes, you can!
+Run:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+npm run build
+npm run preview
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Deploy the generated `dist` directory to any static host that supports Vite apps. Configure the same `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` values in your hosting provider before building.
+
+## Notes
+
+- This project has both `package-lock.json` and `bun.lockb`. npm is the documented package manager because `package-lock.json` was updated with the Supabase dependency.
+- `.env.local` is intentionally ignored by Git through the existing `*.local` rule.
+- `npm install` currently reports audit findings from the dependency tree. Run `npm audit` to inspect them and `npm audit fix` only after reviewing the resulting package changes.
